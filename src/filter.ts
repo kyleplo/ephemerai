@@ -1,6 +1,7 @@
 import { EventData } from "./transformCalendar";
 
 export type FilterOptions = {
+  id?: number,
   type?: "text" | "uid" | "organizer" | "email" | "location" | "priority",
   value?: string | number,
   invert?: boolean
@@ -12,7 +13,7 @@ const defaultFilterOptions: FilterOptions = {
   invert: false
 }
 
-type FilterGroupOptions = {
+export type FilterGroupOptions = {
   filters?: FilterOptions[],
   all?: boolean,
   invert?: boolean
@@ -71,4 +72,20 @@ export function evaluateFilterGroup(inputOptions: FilterGroupOptions): (event: E
     }
     return !anyFail;
   };
+}
+
+const filterChars = {
+  "text": "x",
+  "uid": "u",
+  "organizer": "o",
+  "email": "e",
+  "location": "l",
+  "priority": "p"
+}
+
+export function filterToQueryParam(filter: FilterOptions) {
+  if (!filter.type || !filter.value) {
+    return;
+  }
+  return filterChars[filter.type] + "=" + (filter.invert ? "!" : "") + encodeURIComponent(filter.value);
 }

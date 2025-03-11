@@ -9,11 +9,13 @@ export default {
 		} else if (url.pathname === "/parse") {
 			return performParse(url);
 		}
-		return new Response("404 Not Found", {
+		return new Response(JSON.stringify({
+			error: "Not Found"
+		}), {
 			status: 404,
 			statusText: "Not Found",
 			headers: {
-				"Content-Type": "text/plain"
+				"Content-Type": "application/json"
 			}
 		});
 	},

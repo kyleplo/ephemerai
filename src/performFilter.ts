@@ -17,20 +17,24 @@ function createStringFilters(type: "text" | "uid" | "organizer" | "email" | "loc
 export async function performFilter(url: URL): Promise<Response> {
   const params = url.searchParams;
   if (!params.has("a") && !params.has("t") && !params.has("x") && !params.has("u") && !params.has("o") && !params.has("p") && !params.has("l") && !params.has("e") && !params.has("m") && !params.has("r") && !params.has("t")) {
-    return new Response("400 Bad Request - No Filters Specified", {
+    return new Response(JSON.stringify({
+      error: "No Filters Specified"
+    }), {
       status: 400,
       statusText: "Bad Request - No Filters Specified",
       headers: {
-        "Content-Type": "text/plain"
+        "Content-Type": "application/json"
       }
     });
   }
   if (params.get("t") && !filterGroupTypes.includes(params.get("t") as string)) {
-    return new Response("400 Bad Request - Invalid Filter Type", {
+    return new Response(JSON.stringify({
+      error: "Invalid Filter Type"
+    }), {
       status: 400,
       statusText: "Bad Request - Invalid Filter Type",
       headers: {
-        "Content-Type": "text/plain"
+        "Content-Type": "application/json"
       }
     });
   }
@@ -41,7 +45,7 @@ export async function performFilter(url: URL): Promise<Response> {
   const file = resp.body as ReadableStream;
   const transformOptions: TransformOptions = {
     removeAlarms: params.has("a"),
-    makeTransparent: params.has("t")
+    makeTransparent: params.has("h")
   };
   const filters: FilterOptions[] = [];
   createStringFilters("text", params.getAll("x"), filters);

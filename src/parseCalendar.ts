@@ -8,6 +8,7 @@ export type CalendarInfo = {
   locations: Set<string>,
   organizers: Set<string>,
   emails: Set<string>
+  url?: string
 }
 
 export function parseCalendar () {
@@ -97,7 +98,7 @@ export function parseCalendar () {
       if (lineBuffer.length) {
         handleLine(lineBuffer);
       }
-      controller.enqueue(JSON.stringify(calendarInfo, (key: string, value: any) => {
+      controller.enqueue(JSON.stringify(calendarInfo, (_key: string, value: any) => {
         if (value instanceof Set) {
           return Array.from(value);
         } else if (value instanceof Map) {
