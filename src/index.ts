@@ -1,5 +1,6 @@
 import { performFilter } from "./performFilter";
 import { performParse } from "./performParse";
+import { performAi } from "./performAi"
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
@@ -8,6 +9,8 @@ export default {
 			return performFilter(url);
 		} else if (url.pathname === "/parse") {
 			return performParse(url);
+		} else if (url.pathname === "/ai") {
+			return performAi(url, env.AI);
 		}
 		return new Response(JSON.stringify({
 			error: "Not Found"
