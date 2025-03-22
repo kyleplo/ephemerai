@@ -25,7 +25,7 @@ export function PrioritySelect(props: {onChange: (event: React.ChangeEvent<HTMLI
 export function Filter(props: { filter: FilterOptions, filters: FilterOptions[], setFilters: (filters: FilterOptions[]) => void, calendar: CalendarInfo; }) {
   const filter = props.filter;
   return <TableRow>
-    <TableCell sx={{padding: "8px"}}>
+    <TableCell sx={{padding: 1}}>
       <TextField select fullWidth slotProps={{
           select: {
             native: true,
@@ -51,7 +51,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
         {props.calendar.hasPriority ? <option value="priority">Priority</option> : null}
       </TextField>
     </TableCell>
-    <TableCell sx={{padding: "8px"}}>
+    <TableCell sx={{padding: 1}}>
       <TextField select fullWidth slotProps={{
           select: {
             native: true,
@@ -73,7 +73,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
         <option value="invert">{filter.type === "uid" ? "is not" : filter.type === "priority" ? "is less than" : "does not include"}</option>
       </TextField>
     </TableCell>
-    <TableCell sx={{width: "40%", padding: "8px"}}>
+    <TableCell sx={{width: "40%", padding: 1}}>
       {filter.type === "priority" ? (
         <PrioritySelect label="Value" fullWidth value={filter.value} onChange={e => {
           props.setFilters(props.filters.map(oldFilter => {
@@ -128,7 +128,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
           }} />
       )}
     </TableCell>
-    <TableCell sx={{padding: "8px"}}>
+    <TableCell sx={{padding: 1}}>
       <Button startIcon={<DeleteIcon />} color="error" variant="contained" onClick={() => {
         props.setFilters(props.filters.filter(oldFilter => {
           return oldFilter.id !== filter.id;

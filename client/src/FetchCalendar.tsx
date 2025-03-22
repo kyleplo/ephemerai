@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { CalendarInfo } from "../../src/parseCalendar";
 import { Button, ButtonGroup, TextField } from "@mui/material";
+import { PropsOf } from "@emotion/react";
 
-export function FetchCalendar(props: { setCalendar: (calendar: CalendarInfo) => void; }) {
+export function FetchCalendar(props: { setCalendar: (calendar: CalendarInfo) => void; } & PropsOf<typeof ButtonGroup>) {
   const [error, setError] = useState<string>("");
   const [calendarUrl, setCalendarUrl] = useState<string>("");
-  return <ButtonGroup variant="contained">
-    <TextField type="url" value={calendarUrl} label="Calendar URL" variant="filled" onChange={e => {
-      setCalendarUrl(e.target.value);
+  return <ButtonGroup variant="contained" {...props}>
+    <TextField type="url" value={calendarUrl} label="Calendar Address" variant="filled" onChange={e => {
+      setCalendarUrl(e.target.value.replaceAll("webcal://", "https://").replaceAll("http://", "https://"));
       setError("");
     }} error={error.length > 0 && error !== "loading"} helperText={error === "loading" ? null : error} slotProps={{
       input: {
