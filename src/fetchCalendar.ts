@@ -1,4 +1,4 @@
-export async function fetchCalendar(url: string): Promise<[string | null, Response]> {
+export async function fetchCalendar(url: string, ctx: ExecutionContext): Promise<[string | null, Response]> {
   var fileName, resp;
   try {
     const calendarUrl = new URL(url);
@@ -14,7 +14,18 @@ export async function fetchCalendar(url: string): Promise<[string | null, Respon
       })];
     }
     fileName = calendarUrl.pathname.split("/").at(-1);
+
+    const cachedCalendar = await caches.default.match(calendarUrl);
+    if (cachedCalendar) {
+      return [fileName as string, cachedCalendar];
+    }
+
     resp = await fetch(calendarUrl.href);
+
+    const respToCache = new Response(resp.clone().body);
+    respToCache.headers.set("CDN-Cache-Control", "public, max-age=3600, immutable");
+    ctx.waitUntil(caches.default.put(calendarUrl, respToCache));
+
     if (!resp.ok || !resp.body) {
       return [null, new Response(JSON.stringify({
         error: "Failed to Fetch Calendar"
@@ -27,7 +38,6 @@ export async function fetchCalendar(url: string): Promise<[string | null, Respon
       })];
     }
     if (!resp.headers.has("Content-Type") || !(resp.headers.get("Content-Type") as string).includes("text/calendar")) {
-      console.log(resp.headers.get("Content-Type"))
       return [null, new Response(JSON.stringify({
         error: "Invalid Calendar Data"
       }), {

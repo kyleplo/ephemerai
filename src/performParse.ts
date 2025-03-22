@@ -1,9 +1,9 @@
 import { fetchCalendar } from "./fetchCalendar";
 import { parseCalendar } from "./parseCalendar";
 
-export async function performParse(url: URL): Promise<Response> {
+export async function performParse(url: URL, ctx: ExecutionContext): Promise<Response> {
   const params = url.searchParams;
-  const [fileName, resp] = await fetchCalendar(params.get("c") as string);
+  const [fileName, resp] = await fetchCalendar(params.get("c") as string, ctx);
   if (fileName === null) {
     return resp;
   }

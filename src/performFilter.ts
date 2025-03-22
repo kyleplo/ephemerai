@@ -14,7 +14,7 @@ function createStringFilters(type: "text" | "uid" | "organizer" | "email" | "loc
   });
 }
 
-export async function performFilter(url: URL): Promise<Response> {
+export async function performFilter(url: URL, ctx: ExecutionContext): Promise<Response> {
   const params = url.searchParams;
   if (!params.has("a") && !params.has("t") && !params.has("x") && !params.has("u") && !params.has("o") && !params.has("p") && !params.has("l") && !params.has("e") && !params.has("m") && !params.has("r") && !params.has("t")) {
     return new Response(JSON.stringify({
@@ -38,7 +38,7 @@ export async function performFilter(url: URL): Promise<Response> {
       }
     });
   }
-  const [fileName, resp] = await fetchCalendar(params.get("c") as string);
+  const [fileName, resp] = await fetchCalendar(params.get("c") as string, ctx);
   if (fileName === null) {
     return resp;
   }

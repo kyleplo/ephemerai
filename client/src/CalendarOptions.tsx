@@ -114,18 +114,18 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
                 <Button startIcon={<AIIcon fontSize="small" />} loading={aiMessage === "loading"} onClick={() => {
                   setAiMessage("loading");
                   try {
-                    fetch("/ai?p=" + encodeURIComponent(aiPrompt)).then(r => r.json()).then((j: FilterGroupOptions & { error?: string}) => {
+                    fetch("/ai?p=" + encodeURIComponent(aiPrompt)).then(r => r.json()).then((j: {filters?: FilterGroupOptions, error?: string, remainingCalls: number}) => {
                       if (j.error) {
                         setAiMessage(j.error);
-                      } else {
-                        j.filters?.forEach(filter => {
+                      } else if (j.filters) {
+                        j.filters.filters?.forEach(filter => {
                           filter.id = Math.random();
                         })
-                        setFilters(j.filters as FilterOptions[]);
-                        if (j.all) {
-                          setFilterMode(j.invert ? "none" : "all");
+                        setFilters(j.filters.filters as FilterOptions[]);
+                        if (j.filters.all) {
+                          setFilterMode(j.filters.invert ? "none" : "all");
                         } else {
-                          setFilterMode(j.invert ? "some" : "any");
+                          setFilterMode(j.filters.invert ? "some" : "any");
                         }
                         setAiMessage("");
                       }
@@ -209,7 +209,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
               <TextField fullWidth type="text" slotProps={{input: {readOnly: true}}} value={"https://" + calendarUrl} />
               <ButtonGroup sx={{paddingBlockStart: 1}}>
                 <CopyButton text={"https://" + calendarUrl}>
-                  Copy Link
+                  Copy Address
                 </CopyButton>
                 <Button endIcon={<LaunchIcon/>} href={"webcal://" + calendarUrl} target="_blamk">
                   Open in Default Calendar App
