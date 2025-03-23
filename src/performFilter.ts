@@ -45,7 +45,8 @@ export async function performFilter(url: URL, ctx: ExecutionContext): Promise<Re
   const file = resp.body as ReadableStream;
   const transformOptions: TransformOptions = {
     removeAlarms: params.has("a"),
-    makeTransparent: params.has("h")
+    makeTransparent: params.has("h") && params.get("h") !== "o",
+    makeOpaque: params.has("h") && params.get("h") === "o"
   };
   const filters: FilterOptions[] = [];
   createStringFilters("text", params.getAll("x"), filters);

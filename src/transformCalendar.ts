@@ -9,6 +9,7 @@ export type EventData = {
 export type TransformOptions = {
   removeAlarms?: boolean,
   makeTransparent?: boolean,
+  makeOpaque?: boolean,
   modifyPriority?: number,
   rename?: string
 }
@@ -33,12 +34,16 @@ export function transformCalendar (filter: (event: EventData) => boolean, transf
       if (line === "END:VEVENT") {
         if (transform.makeTransparent) {
           event += "TRANSP:TRANSPARENT\r\n";
-        } else if (transform.modifyPriority) {
+        }
+        if (transform.makeOpaque) {
+          event += "TRANSP:OPAQUE\r\n";
+        }
+        if (transform.modifyPriority) {
           eventData.priority = transform.modifyPriority;
           event += "PRIORITY:" + transform.modifyPriority + "\r\n";
         }
       }
-      if (!(transform.makeTransparent && line === "TRANSP:OPAQUE") && !(inAlarm || line.startsWith("BEGIN:VALARM") || line.startsWith("END:VALARM")) && !(line.startsWith("PRIORITY:") && transform.modifyPriority)) {
+      if (!((transform.makeTransparent || transform.makeOpaque) && line.startsWith("TRANSP:")) && !(inAlarm || line.startsWith("BEGIN:VALARM") || line.startsWith("END:VALARM")) && !(line.startsWith("PRIORITY:") && transform.modifyPriority)) {
         event += line + "\r\n";
       }
       if (line === "END:VEVENT") {

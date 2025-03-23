@@ -2,7 +2,7 @@ export type CalendarInfo = {
   name: string,
   hasAlarms: boolean,
   hasPriority: boolean,
-  hasOpaque: boolean,
+  hasTransparency: boolean,
   hasText: boolean,
   events: Map<string, string>,
   locations: Set<string>,
@@ -22,7 +22,7 @@ export function parseCalendar () {
     name: "Calendar",
     hasAlarms: false,
     hasPriority: false,
-    hasOpaque: false,
+    hasTransparency: false,
     hasText: false,
     events: new Map(),
     locations: new Set(),
@@ -62,8 +62,8 @@ export function parseCalendar () {
         calendarInfo.hasPriority = true;
       } else if (line === "BEGIN:VALARM" || line === "END:VALARM") {
         calendarInfo.hasAlarms = true;
-      } else if (line.startsWith("TRANSP:OPAQUE")) {
-        calendarInfo.hasOpaque = true;
+      } else if (line.startsWith("TRANSP:")) {
+        calendarInfo.hasTransparency = true;
       }
     } else if (line === "BEGIN:VEVENT") {
       event = line + "\r\n";

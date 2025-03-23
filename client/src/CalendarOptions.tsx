@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { CalendarInfo } from "../../src/parseCalendar"
 import { FilterGroupOptions, FilterOptions, filterToQueryParam } from "../../src/filter"
 import { Filter, PrioritySelect } from "./Filter";
-import { AppBar, Button, ButtonGroup, Container, Dialog, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, IconButton, Stack, Switch, Table, TableContainer, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Button, ButtonGroup, Container, Dialog, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, Grid2 as Grid, IconButton, Stack, Switch, Table, TableContainer, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
 import { AutoAwesome as AIIcon, Close as CloseIcon, ContentCopy as CopyIcon, Launch as LaunchIcon } from "@mui/icons-material";
 
 function CopyButton(props: {text: string, children: ReactNode}) {
@@ -20,29 +20,27 @@ function CopyButton(props: {text: string, children: ReactNode}) {
   </Tooltip>;
 }
 
-function EnableableInput(props: { value: string | number | null, setValue: (enabled: any) => void, inputType: string, inputMax?: number, inputMin?: number, defaultValue?: any, label: string, inputLabel?: string }) {
-  return <>
-    <FormControlLabel control={
-      <Switch checked={props.value !== null} onChange={() => {
-        if (props.value === null) {
-          props.setValue("");
-        } else {
-          props.setValue(null);
-        }
-      }} />} label={props.label} />
-    {props.inputType === "number" ?
-      <PrioritySelect value={props.value || undefined} label={props.inputLabel || props.label} disabled={props.value === null} onChange={e => {
-        props.setValue(e.target.value);
-      }} /> :
-      <TextField type={props.inputType} label={props.inputLabel || props.label} variant="filled" value={props.value || undefined} disabled={props.value === null} onChange={e => {
-        props.setValue(e.target.value);
-      }} />}
-  </>;
+function EnableableInput<T>(props: { value: T, default: T, setValue: (value: T | null) => void, label: string, children: ReactNode }) {
+  return <Grid container columns={{xs: 5, sm: 7}} columnSpacing={2} sx={{paddingBlockStart: 1, alignItems: "center"}}>
+    <Grid size={{xs: 5, sm: 2}}>
+      <FormControlLabel control={
+        <Switch checked={props.value !== null} onChange={() => {
+          if (props.value === null) {
+            props.setValue(props.default);
+          } else {
+            props.setValue(null);
+          }
+        }} />} label={props.label} />
+    </Grid>
+    <Grid size={5}>
+      {props.children}
+    </Grid>
+  </Grid>
 }
 
 function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: () => void}) {
   const [removeAlarms, setRemoveAlarms] = useState(false);
-  const [makeTransparent, setMakeTransparent] = useState(false);
+  const [makeTransparent, setMakeTransparent] = useState<"transparent" | "opaque" | null>(null);
   const [modifyPriority, setModifyPriority] = useState<number | null>(null);
   const [renameCalendar, setRenameCalendar] = useState<string | null>(null);
   const [filterMode, setFilterMode] = useState("any");
@@ -52,7 +50,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
 
   useEffect(() => {
     setRemoveAlarms(false);
-    setMakeTransparent(false);
+    setMakeTransparent(null);
     setModifyPriority(null);
     setRenameCalendar(null);
     setFilterMode("any");
@@ -62,7 +60,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
   }, [props.calendar])
 
   if (!props.calendar) {
-    return <Dialog fullScreen open={props.open}>
+    return <Dialog fullScreen open={props.open} sx={{userSelect: "none"}}>
       <AppBar>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
@@ -80,13 +78,15 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
   + encodeURIComponent(props.calendar.url as string)
   + "&t=" + filterMode
   + (removeAlarms ? "&a" : "")
-  + (makeTransparent ? "&h" : "") 
+  + (makeTransparent === "transparent" ? "&h" : "")
+  + (makeTransparent === "opaque" ? "&h=o" : "") 
   + (renameCalendar ? "&r=" + encodeURIComponent(renameCalendar) : "") 
   + (modifyPriority ? "&m=" + modifyPriority : "")
-  + "&" + filters.map(filter => filterToQueryParam(filter)).join("&");
+  + (filters.length ? "&" : "")
+  + filters.map(filter => filterToQueryParam(filter)).join("&");
 
   return (
-    <Dialog fullScreen open={props.open}>
+    <Dialog fullScreen open={props.open} sx={{userSelect: "none"}}>
       <AppBar>
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
@@ -97,7 +97,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="md" sx={{marginBlockStart: 9, marginBlockEnd: 9}}>
+      <Container maxWidth="md" sx={{marginBlockStart: 9, marginBlockEnd: 4}}>
         <Container sx={{marginBlock: 3}}>
           <FormControl component="fieldset" variant="standard" fullWidth>
             <FormLabel component="legend">AI Filter Generator</FormLabel>
@@ -189,16 +189,31 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
                     onChange={() => setRemoveAlarms(!removeAlarms)}/>}
                   label="Remove Event Reminders" />)
               : null}
-              <FormControlLabel
-              control={<Switch
-                checked={makeTransparent}
-                onChange={() => setMakeTransparent(!makeTransparent)}/>}
-              label="Mark All Events as Transparent" />
+              <EnableableInput<"transparent" | "opaque" | null> default={"transparent"} value={makeTransparent} setValue={setMakeTransparent} label="Modify Event Transparency">
+                <TextField select slotProps={{
+                  select: {
+                    native: true,
+                  },
+                }} variant="filled" label="Transparency" onChange={e => {
+                  setMakeTransparent(e.target.value as "transparent" | "opaque");
+                }} value={makeTransparent} disabled={makeTransparent === null}>
+                  <option value="transparent">Transparent</option>
+                  <option value="opaque">Opaque</option>
+                </TextField>
+              </EnableableInput>
               <FormHelperText>
                 Transparent events do not block off space in your calendar, so other events can be created at the same time.
               </FormHelperText>
-              <EnableableInput value={modifyPriority} setValue={setModifyPriority} inputType="number" inputMin={0} inputMax={9} label="Modify Event Priority" inputLabel="Priority" />
-              <EnableableInput value={renameCalendar} setValue={setRenameCalendar} inputType="text" defaultValue={props.calendar.name} label="Rename Calendar" inputLabel="Name" />
+              <EnableableInput<number | null> default={0} value={modifyPriority} setValue={setModifyPriority} label="Modify Event Priority">
+                <PrioritySelect value={modifyPriority as number} label="Priority" disabled={modifyPriority === null} onChange={e => {
+                  setModifyPriority(parseInt(e.target.value));
+                }} />
+              </EnableableInput>
+              <EnableableInput<string | null> value={renameCalendar} setValue={setRenameCalendar} default="" label="Rename Calendar">
+                <TextField type="text" label="Name" variant="filled" value={renameCalendar} disabled={renameCalendar === null} onChange={e => {
+                  setRenameCalendar(e.target.value);
+                }} />
+              </EnableableInput>
             </FormGroup>
           </FormControl>
         </Container>
