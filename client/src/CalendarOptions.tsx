@@ -86,155 +86,157 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
   + filters.map(filter => filterToQueryParam(filter)).join("&");
 
   return (
-    <Dialog fullScreen open={props.open} sx={{userSelect: "none"}}>
-      <AppBar>
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
-            <CloseIcon />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            Filter {props.calendar.name}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="md" sx={{marginBlockStart: 9, marginBlockEnd: 4}}>
-        <Container sx={{marginBlock: 3}}>
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend">AI Filter Generator</FormLabel>
-            <FormGroup>
-            <Stack direction="row">
-              <TextField fullWidth label="Prompt" variant="filled" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} slotProps={{
-                input: {
-                  readOnly: aiMessage === "loading"
-                }
-              }} error={aiMessage.length > 0 && aiMessage !== "loading"} helperText={aiMessage === "loading" ? null : aiMessage} sx={{
-                flexDirection: "row",
-                paddingRight: 1
-              }}/>
-                <Button startIcon={<AIIcon fontSize="small" />} loading={aiMessage === "loading"} onClick={() => {
-                  setAiMessage("loading");
-                  try {
-                    fetch("/ai?p=" + encodeURIComponent(aiPrompt)).then(r => r.json()).then((j: {filters?: FilterGroupOptions, error?: string, remainingCalls: number}) => {
-                      if (j.error) {
-                        setAiMessage(j.error);
-                      } else if (j.filters) {
-                        j.filters.filters?.forEach(filter => {
-                          filter.id = Math.random();
-                        })
-                        setFilters(j.filters.filters as FilterOptions[]);
-                        if (j.filters.all) {
-                          setFilterMode(j.filters.invert ? "none" : "all");
-                        } else {
-                          setFilterMode(j.filters.invert ? "some" : "any");
+    <>
+      <Dialog fullScreen open={props.open} sx={{userSelect: "none"}}>
+        <AppBar>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" onClick={props.close} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              Filter {props.calendar.name}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="md" sx={{marginBlockStart: 9, marginBlockEnd: 4}}>
+          <Container sx={{marginBlock: 3}}>
+            <FormControl component="fieldset" variant="standard" fullWidth>
+              <FormLabel component="legend">AI Filter Generator</FormLabel>
+              <FormGroup>
+                <Stack direction="row">
+                  <TextField fullWidth label="Prompt" variant="filled" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} slotProps={{
+                    input: {
+                      readOnly: aiMessage === "loading"
+                    }
+                  }} error={aiMessage.length > 0 && aiMessage !== "loading"} helperText={aiMessage === "loading" ? null : aiMessage} sx={{
+                    flexDirection: "row",
+                    paddingRight: 1
+                  }}/>
+                  <Button startIcon={<AIIcon fontSize="small" />} loading={aiMessage === "loading"} onClick={() => {
+                    setAiMessage("loading");
+                    try {
+                      fetch("/ai?p=" + encodeURIComponent(aiPrompt)).then(r => r.json()).then((j: {filters?: FilterGroupOptions, error?: string, remainingCalls: number}) => {
+                        if (j.error) {
+                          setAiMessage(j.error);
+                        } else if (j.filters) {
+                          j.filters.filters?.forEach(filter => {
+                            filter.id = Math.random();
+                          })
+                          setFilters(j.filters.filters as FilterOptions[]);
+                          if (j.filters.all) {
+                            setFilterMode(j.filters.invert ? "none" : "all");
+                          } else {
+                            setFilterMode(j.filters.invert ? "some" : "any");
+                          }
+                          setAiMessage("");
                         }
-                        setAiMessage("");
-                      }
-                    });
-                  } catch (_e) {
-                    setAiMessage("Failed to Generate Filters");
-                  }
-                }} sx={{minWidth: "30%!important"}} variant="contained">Generate Filters</Button>
-              </Stack>
-            </FormGroup>
-            <FormHelperText>AI can make mistakes. Always review any filters generated by AI.</FormHelperText>
-          </FormControl>
+                      });
+                    } catch (_e) {
+                      setAiMessage("Failed to Generate Filters");
+                    }
+                  }} sx={{minWidth: "30%!important"}} variant="contained">Generate Filters</Button>
+                </Stack>
+              </FormGroup>
+              <FormHelperText>AI can make mistakes. Always review any filters generated by AI.</FormHelperText>
+            </FormControl>
+          </Container>
+          <Container sx={{marginBlockStart: 3}}>
+            <FormControl component="fieldset" variant="standard" fullWidth>
+              <FormLabel component="legend">Filters</FormLabel>
+              <FormGroup>
+                <Stack direction="row">
+                  <TextField fullWidth select slotProps={{
+                    select: {
+                      native: true,
+                    },
+                  }} label="Filter Mode" variant="filled" defaultValue="any" value={filterMode} onChange={e => {
+                    setFilterMode(e.target.value);
+                  }} sx={{
+                    flexDirection: "row",
+                    paddingRight: 1
+                  }}>
+                    <option value="any">Keep Event If Any Filter Matches</option>
+                    <option value="all">Keep Event If All Filters Match</option>
+                    <option value="some">Discard Event If Any Filter Matches</option>
+                    <option value="none">Discard Event If All Filters Match</option>
+                  </TextField>
+                  <Button onClick={() => {
+                    setFilters(filters.concat([{
+                      id: Math.random(),
+                      type: "text",
+                      invert: false,
+                      value: ""
+                    }]));
+                  }} sx={{minWidth: "30%!important"}} variant="contained">
+                    Add New Filter
+                  </Button>
+                </Stack>
+              </FormGroup>
+            </FormControl>
+          </Container>
+          <TableContainer>
+            <Table>
+              {filters.map(filter => <Filter key={filter.id} filter={filter} filters={filters} setFilters={setFilters} calendar={props.calendar as CalendarInfo}></Filter>)}
+            </Table>
+          </TableContainer>
+          <Container sx={{marginBlock: 3}}>
+            <FormControl component="fieldset" variant="standard" fullWidth>
+              <FormLabel component="legend">Other Options</FormLabel>
+              <FormGroup>
+                {props.calendar.hasAlarms ? 
+                  (<FormControlLabel
+                    control={<Switch
+                      checked={removeAlarms}
+                      onChange={() => setRemoveAlarms(!removeAlarms)}/>}
+                    label="Remove Event Reminders" />)
+                : null}
+                <EnableableInput<"transparent" | "opaque" | null> default={"transparent"} value={makeTransparent} setValue={setMakeTransparent} label="Modify Event Transparency">
+                  <TextField select slotProps={{
+                    select: {
+                      native: true,
+                    },
+                  }} variant="filled" label="Transparency" onChange={e => {
+                    setMakeTransparent(e.target.value as "transparent" | "opaque");
+                  }} value={makeTransparent} disabled={makeTransparent === null}>
+                    <option value="transparent">Transparent</option>
+                    <option value="opaque">Opaque</option>
+                  </TextField>
+                </EnableableInput>
+                <FormHelperText>
+                  Transparent events do not block off space in your calendar, so other events can be created at the same time.
+                </FormHelperText>
+                <EnableableInput<number | null> default={0} value={modifyPriority} setValue={setModifyPriority} label="Modify Event Priority">
+                  <PrioritySelect value={modifyPriority as number} label="Priority" disabled={modifyPriority === null} onChange={e => {
+                    setModifyPriority(parseInt(e.target.value));
+                  }} />
+                </EnableableInput>
+                <EnableableInput<string | null> value={renameCalendar} setValue={setRenameCalendar} default="" label="Rename Calendar">
+                  <TextField type="text" label="Name" variant="filled" value={renameCalendar} disabled={renameCalendar === null} onChange={e => {
+                    setRenameCalendar(e.target.value);
+                  }} />
+                </EnableableInput>
+              </FormGroup>
+            </FormControl>
+          </Container>
+          <Container sx={{marginBlock: 3}}>
+            <FormControl component="fieldset" variant="standard" fullWidth>
+              <FormLabel component="legend">Your Filtered Calendar</FormLabel>
+              <FormGroup>
+                <TextField fullWidth type="text" slotProps={{input: {readOnly: true}}} value={"https://" + calendarUrl} />
+                <ButtonGroup sx={{paddingBlockStart: 1}}>
+                  <CopyButton text={"https://" + calendarUrl}>
+                    Copy Address
+                  </CopyButton>
+                  <Button endIcon={<LaunchIcon/>} href={"webcal://" + calendarUrl} target="_blamk">
+                    Open in Default Calendar App
+                  </Button>
+                </ButtonGroup>
+              </FormGroup>
+            </FormControl>
+          </Container>
         </Container>
-        <Container sx={{marginBlockStart: 3}}>
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend">Filters</FormLabel>
-            <FormGroup>
-              <Stack direction="row">
-                <TextField fullWidth select slotProps={{
-                  select: {
-                    native: true,
-                  },
-                }} label="Filter Mode" variant="filled" defaultValue="any" value={filterMode} onChange={e => {
-                  setFilterMode(e.target.value);
-                }} sx={{
-                  flexDirection: "row",
-                  paddingRight: 1
-                }}>
-                  <option value="any">Keep Event If Any Filter Matches</option>
-                  <option value="all">Keep Event If All Filters Match</option>
-                  <option value="some">Discard Event If Any Filter Matches</option>
-                  <option value="none">Discard Event If All Filters Match</option>
-                </TextField>
-                <Button onClick={() => {
-                  setFilters(filters.concat([{
-                    id: Math.random(),
-                    type: "text",
-                    invert: false,
-                    value: ""
-                  }]));
-                }} sx={{minWidth: "30%!important"}} variant="contained">
-                  Add New Filter
-                </Button>
-              </Stack>
-            </FormGroup>
-          </FormControl>
-        </Container>
-        <TableContainer>
-          <Table>
-            {filters.map(filter => <Filter key={filter.id} filter={filter} filters={filters} setFilters={setFilters} calendar={props.calendar as CalendarInfo}></Filter>)}
-          </Table>
-        </TableContainer>
-        <Container sx={{marginBlock: 3}}>
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend">Other Options</FormLabel>
-            <FormGroup>
-              {props.calendar.hasAlarms ? 
-                (<FormControlLabel
-                  control={<Switch
-                    checked={removeAlarms}
-                    onChange={() => setRemoveAlarms(!removeAlarms)}/>}
-                  label="Remove Event Reminders" />)
-              : null}
-              <EnableableInput<"transparent" | "opaque" | null> default={"transparent"} value={makeTransparent} setValue={setMakeTransparent} label="Modify Event Transparency">
-                <TextField select slotProps={{
-                  select: {
-                    native: true,
-                  },
-                }} variant="filled" label="Transparency" onChange={e => {
-                  setMakeTransparent(e.target.value as "transparent" | "opaque");
-                }} value={makeTransparent} disabled={makeTransparent === null}>
-                  <option value="transparent">Transparent</option>
-                  <option value="opaque">Opaque</option>
-                </TextField>
-              </EnableableInput>
-              <FormHelperText>
-                Transparent events do not block off space in your calendar, so other events can be created at the same time.
-              </FormHelperText>
-              <EnableableInput<number | null> default={0} value={modifyPriority} setValue={setModifyPriority} label="Modify Event Priority">
-                <PrioritySelect value={modifyPriority as number} label="Priority" disabled={modifyPriority === null} onChange={e => {
-                  setModifyPriority(parseInt(e.target.value));
-                }} />
-              </EnableableInput>
-              <EnableableInput<string | null> value={renameCalendar} setValue={setRenameCalendar} default="" label="Rename Calendar">
-                <TextField type="text" label="Name" variant="filled" value={renameCalendar} disabled={renameCalendar === null} onChange={e => {
-                  setRenameCalendar(e.target.value);
-                }} />
-              </EnableableInput>
-            </FormGroup>
-          </FormControl>
-        </Container>
-        <Container sx={{marginBlock: 3}}>
-          <FormControl component="fieldset" variant="standard" fullWidth>
-            <FormLabel component="legend">Your Filtered Calendar</FormLabel>
-            <FormGroup>
-              <TextField fullWidth type="text" slotProps={{input: {readOnly: true}}} value={"https://" + calendarUrl} />
-              <ButtonGroup sx={{paddingBlockStart: 1}}>
-                <CopyButton text={"https://" + calendarUrl}>
-                  Copy Address
-                </CopyButton>
-                <Button endIcon={<LaunchIcon/>} href={"webcal://" + calendarUrl} target="_blamk">
-                  Open in Default Calendar App
-                </Button>
-              </ButtonGroup>
-            </FormGroup>
-          </FormControl>
-        </Container>
-      </Container>
-    </Dialog>
+      </Dialog>
+  </>
   )
 }
 

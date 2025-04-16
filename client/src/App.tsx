@@ -1,16 +1,84 @@
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import CalendarOptions from './CalendarOptions';
 import { CalendarInfo } from '../../src/parseCalendar';
 import { FetchCalendar } from './FetchCalendar';
-import { Accordion, AccordionDetails, AccordionSummary, AppBar, Container, Toolbar, Typography, Grid2 as Grid, Paper, Stack } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, AppBar, Container, Toolbar, Typography, Grid2 as Grid, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, createTheme, ThemeProvider, CssBaseline, List, ListItem, Chip, FormControlLabel, Switch } from '@mui/material';
 import { InfoOutlined as InfoIcon, MoreVert as MoreVertIcon, ExpandMore as ExpandMoreIcon, Place as PlaceIcon, AutoAwesome as AIIcon, Person as PersonIcon, LowPriority as PriorityIcon, Opacity as OpacityIcon, NotificationsOff as NotificationsOffIcon } from '@mui/icons-material';
+import { PrivacyPolicy, TOS } from './TOSPrivacyPolicy';
 
-const productName = "Secretary";
+const productName = "SecretarAI";
+const contactEmail = "secretarai@kyleplo.com";
+
+const theme = createTheme({
+  colorSchemes: {
+    dark: true,
+  }
+});
+
+function Demo () {
+  const [interactedWithDemo, setInteractedWithDemo] = useState(false);
+  const [demoToggle, setDemoToggle] = useState(false);
+
+  useEffect(() => {
+    if (interactedWithDemo) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setDemoToggle(toggle => !toggle);
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+    }
+  }, [interactedWithDemo])
+
+  const now = new Date();
+  const demoDate = (now.getDay() === 0 || now.getDay() == 6 ? new Date(now.getTime() + 172800000) : now).toLocaleDateString(undefined, {dateStyle: "full"});
+
+  return <div aria-hidden="true">
+    <Paper sx={{padding: 3, margin: 3}}>
+      <Chip label="Keep Event If Any Filter Matches" />
+      <Stack direction="row" spacing={1} sx={{marginTop: 1}}>
+        <Chip label='Description includes "canceled"'/>
+        <Chip label='Description includes "optional"' sx={{overflow: "hidden"}} />
+      </Stack>
+      <FormControlLabel
+        control={<Switch
+          checked={demoToggle}
+          onChange={() => {
+            setInteractedWithDemo(true);
+            setDemoToggle(!demoToggle)
+          }}/>}
+        label="Enable Filter" />
+    </Paper>
+    <Paper sx={{padding: 3, margin: 3}}>
+      <Stack direction="row" spacing={1}>
+        <Typography variant="h6" component="p">{demoDate}</Typography>
+        <Chip label={(demoToggle ? 3 : 5) + " events"} color={demoToggle ? "success" : "error"} />
+      </Stack>
+      <List dense>
+        <ListItem>
+          <Chip label="9:30 AM - Important Meeting with Joanne" />
+        </ListItem>
+        <ListItem>
+          <Chip label="11:15 AM - Optional Software Training" color={demoToggle ? "error" : "default"} sx={{textDecoration: demoToggle ? "line-through" : "initial"}} />
+        </ListItem>
+        <ListItem>
+          <Chip label="12:20 PM - Team Lunch" />
+          <Chip label="12:20 PM - [CANCELED] Lunch with Frank" color={demoToggle ? "error" : "default"} sx={{marginLeft: 1, overflow: "hidden", textDecoration: demoToggle ? "line-through" : "initial"}} />
+        </ListItem>
+        <ListItem>
+          <Chip label="3:45 PM - Check-in with Management" />
+        </ListItem>
+      </List>
+    </Paper>
+  </div>
+}
 
 function FeaturePaper (props: PropsWithChildren) {
   return <Grid size={1} sx={{display: "flex"}}>
     <Paper>
-      <Stack sx={{alignItems: "center", textAlign: "center", padding: 3}}>
+      <Stack sx={{alignItems: "center", textAlign: "center", paddingBlock: {xs: 4, md: 8}, paddingInline: 4}}>
         {props.children}
       </Stack>
     </Paper>
@@ -19,9 +87,12 @@ function FeaturePaper (props: PropsWithChildren) {
 
 function App() {
   const [calendar, setCalendar] = useState<CalendarInfo | undefined>(undefined);
+  const [showTos, setShowTos] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   return (
-    <>
+    <ThemeProvider theme={theme} noSsr storageManager={null}>
+      <CssBaseline/>
       <AppBar>
         <Toolbar>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
@@ -29,8 +100,21 @@ function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <FetchCalendar setCalendar={setCalendar}></FetchCalendar>
-      {/* header with image and input */}
+      <Container sx={{marginBlockStart: 9}} component="section" maxWidth="lg">
+        <Grid container columns={{sm: 1, md: 2}}>
+          <Grid size={1} sx={{paddingBlock: 8, paddingInline: 5}}>
+            <Typography variant="h3" component="h1">Make Your Calendar as Smart as You</Typography>
+            <Typography variant="body1">
+              Clean up and tweak your calendar calendar subscriptions with AI-assisted filters. Just paste in a calendar subscription address and start filtering.
+            </Typography>
+            <br/>
+            <FetchCalendar setCalendar={setCalendar} showTos={() => setShowTos(true)} showPrivacy={() => setShowPrivacy(true)} />
+          </Grid>
+          <Grid size={1} sx={{padding: {xs: 2, md: 1}}}>
+            <Demo/>
+          </Grid>
+        </Grid>
+      </Container>
       <Container maxWidth="lg" sx={{paddingBlock: 3}} component="section">
         <Typography variant="h4" component="h2" sx={{textAlign: "center", padding: 1}}>Features</Typography>
         <Grid container columns={{ xs: 1, sm: 2, md: 3 }} rowSpacing={4} columnSpacing={{ xs: 2, md: 4, lg: 6 }}>
@@ -137,15 +221,51 @@ function App() {
             </Typography>
           </AccordionDetails>
         </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography component="span">What is transparency in a digital calendar?</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="body1">
+              Events in a digital calendar can be marked as transparent or opaque, which controls how scheduling concurrent events works. Opaque events, the default in most calendar software will prevent other events from being scheduled at the same time. Some calendar software will prevent this action entirely, while others will display a warning. Transparent events don't have this effect, allowing events to be scheduled on top of each other. This is useful for events that may have many subevents, such as conferences, as well as events where other work occurs, such as optional events or minor holidays.
+            </Typography>
+            <Typography variant="body1">
+              If your calendar has events marked as transparent or opaque when you don't want them to be, {productName} can help. Simply select the <strong>Modify Event Transparency</strong> option and choose the desired transparency setting. Note that this only affects the transparency logic in your copy of the calendar, if your calendar is shared, others will be able to see events that you create but will not be affected by the change in transparency.
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
       </Container>
-      <Container component="section" maxWidth="sm" sx={{paddingBlock: 3}}>
+      <Container component="section" maxWidth="sm" sx={{padding: 5}}>
         <Typography variant="h4" component="h2" sx={{textAlign: "center", padding: 1}}>Ready to Try It?</Typography>
-        <FetchCalendar setCalendar={setCalendar} fullWidth></FetchCalendar>
+        <FetchCalendar setCalendar={setCalendar} showTos={() => setShowTos(true)} showPrivacy={() => setShowPrivacy(true)} />
       </Container>
-      {/* "ready to try it" with another input */}
-      {/* footer */}
+      <Container component="footer" maxWidth="lg">
+
+      </Container>
       <CalendarOptions calendar={calendar} open={!!calendar} close={() => setCalendar(undefined)}></CalendarOptions>
-    </>
+      <Dialog open={showTos} onClose={() => setShowTos(false)}>
+        <DialogTitle component="h2">Terms of Service</DialogTitle>
+        <DialogContent>
+          <TOS productName={productName} email={contactEmail} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowTos(false)}>
+            Got It
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={showPrivacy} onClose={() => setShowPrivacy(false)}>
+        <DialogTitle component="h2">Privacy Policy</DialogTitle>
+        <DialogContent>
+          <PrivacyPolicy productName={productName} email={contactEmail} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPrivacy(false)}>
+            Got It
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </ThemeProvider>
   )
 }
 
