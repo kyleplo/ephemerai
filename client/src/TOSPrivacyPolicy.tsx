@@ -1,4 +1,5 @@
 import { Link, Typography } from "@mui/material";
+import React from "react";
 
 export function PrivacyPolicy(props: {productName: string, email: string}) {
   return <>

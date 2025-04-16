@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CalendarInfo } from "../../src/parseCalendar";
 import { Button, Link, Stack, TextField, Typography } from "@mui/material";
+import React from "react";
 
 export function FetchCalendar(props: { setCalendar: (calendar: CalendarInfo) => void, showTos: () => void, showPrivacy: () => void }) {
   const [error, setError] = useState<string>("");

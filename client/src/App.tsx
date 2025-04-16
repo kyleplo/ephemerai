@@ -1,10 +1,11 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
-import CalendarOptions from './CalendarOptions';
+import CalendarOptions from './CalendarOptions.tsx';
 import { CalendarInfo } from '../../src/parseCalendar';
 import { FetchCalendar } from './FetchCalendar';
 import { Accordion, AccordionDetails, AccordionSummary, AppBar, Container, Toolbar, Typography, Grid2 as Grid, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, createTheme, ThemeProvider, CssBaseline, List, ListItem, Chip, FormControlLabel, Switch } from '@mui/material';
 import { InfoOutlined as InfoIcon, MoreVert as MoreVertIcon, ExpandMore as ExpandMoreIcon, Place as PlaceIcon, AutoAwesome as AIIcon, Person as PersonIcon, LowPriority as PriorityIcon, Opacity as OpacityIcon, NotificationsOff as NotificationsOffIcon } from '@mui/icons-material';
 import { PrivacyPolicy, TOS } from './TOSPrivacyPolicy';
+import React from 'react';
 
 const productName = "SecretarAI";
 const contactEmail = "secretarai@kyleplo.com";
@@ -37,7 +38,7 @@ function Demo () {
 
   return <div aria-hidden="true">
     <Paper sx={{padding: 3, margin: 3}}>
-      <Chip label="Keep Event If Any Filter Matches" />
+      <Chip label="Discard Event If Any Filter Matches" />
       <Stack direction="row" spacing={1} sx={{marginTop: 1}}>
         <Chip label='Description includes "canceled"'/>
         <Chip label='Description includes "optional"' sx={{overflow: "hidden"}} />

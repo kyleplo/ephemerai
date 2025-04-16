@@ -1,0 +1,1 @@
+{"root":["./vite-env.d.ts","./vite.config.ts","./client/worker-configuration.d.ts","./src/fetchcalendar.ts","./src/filter.ts","./src/index.ts","./src/parsecalendar.ts","./src/performai.ts","./src/performfilter.ts","./src/performparse.ts","./src/prompt.ts","./src/transformcalendar.ts"],"version":"5.7.3"}

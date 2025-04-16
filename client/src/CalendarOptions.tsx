@@ -4,6 +4,7 @@ import { FilterGroupOptions, FilterOptions, filterToQueryParam } from "../../src
 import { Filter, PrioritySelect } from "./Filter";
 import { AppBar, Button, ButtonGroup, Container, Dialog, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel, Grid2 as Grid, IconButton, Stack, Switch, Table, TableContainer, TextField, Toolbar, Tooltip, Typography } from "@mui/material";
 import { AutoAwesome as AIIcon, Close as CloseIcon, ContentCopy as CopyIcon, Launch as LaunchIcon } from "@mui/icons-material";
+import React from "react";
 
 function CopyButton(props: {text: string, children: ReactNode}) {
   const [copied, setCopied] = useState(false);

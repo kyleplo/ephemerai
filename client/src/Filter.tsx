@@ -2,6 +2,7 @@ import { CalendarInfo } from "../../src/parseCalendar";
 import { FilterOptions } from "../../src/filter";
 import { Autocomplete, Button, SxProps, TableCell, TableRow, TextField, Theme } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
+import React from "react";
 
 export function PrioritySelect(props: {onChange: (event: React.ChangeEvent<HTMLInputElement>) => void, value: string | number | undefined, label: string, sx?: SxProps<Theme>, fullWidth?: boolean, disabled?: boolean}) {
   return <TextField select slotProps={{
