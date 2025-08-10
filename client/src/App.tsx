@@ -7,8 +7,8 @@ import { InfoOutlined as InfoIcon, MoreVert as MoreVertIcon, ExpandMore as Expan
 import { PrivacyPolicy, TOS } from './TOSPrivacyPolicy';
 import React from 'react';
 
-const productName = "SecretarAI";
-const contactEmail = "secretarai@kyleplo.com";
+const productName = "EphemerAI";
+const contactEmail = "ephermerai@kyleplo.com";
 
 const theme = createTheme({
   colorSchemes: {
