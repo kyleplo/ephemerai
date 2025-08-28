@@ -1,6 +1,7 @@
 import { performFilter } from "./performFilter";
 import { performParse } from "./performParse";
 import { performAi } from "./performAi"
+import { performRateLimitTest } from "./rateLimit";
 
 async function useCache(url: URL, ctx: ExecutionContext, process: (url: URL, ctx: ExecutionContext) => Promise<Response>): Promise<Response> {
 	const cachedResponse = await caches.default.match(url);
@@ -22,6 +23,8 @@ export default {
 			return useCache(url, ctx, performFilter);
 		} else if (url.pathname === "/parse") {
 			return useCache(url, ctx, performParse);
+		} else if (url.pathname === "/ratelimittest") {
+			return performRateLimitTest(request.headers.get("CF-Connecting-IP") || "", ctx);
 		} else if (url.pathname === "/ai") {
 			return performAi(url, request.headers.get("CF-Connecting-IP") || "", ctx, env.AI);
 		}

@@ -1,21 +1,11 @@
 import { FilterGroupOptions } from "./filter";
-import { prompt } from "./prompt";
-
-const rateLimit = 20;
+import { prompt, schema } from "./prompt";
+import { doRateLimit } from "./rateLimit";
 
 export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai: Ai<AiModels>) {
   var callCount = 0;
-  const cache = await caches.default.match("https://ephemerai.kyleplo.com/ai?ip=" + ip);
-  try {
-    const cacheData = cache && (await cache.json()) as {count: number};
-    if (cacheData && cacheData.count >= rateLimit) {
-      throw null;
-    }
-    callCount = (cacheData ? cacheData.count + 1 : 1);
-    ctx.waitUntil(caches.default.put("https://ephemerai.kyleplo.com/ai?ip=" + ip, new Response(JSON.stringify({
-      count: callCount
-    }))))
-  } catch (_e) {
+  const remainingCalls = await doRateLimit(ip, ctx);
+  if (remainingCalls <= 0) {
     return new Response(JSON.stringify({
       error: "Rate Limited",
       remainingCalls: 0
@@ -31,7 +21,7 @@ export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai:
   if (!url.searchParams.has("p") || (url.searchParams.get("p") as string).length < 10 || (url.searchParams.get("p") as string).length > 256) { 
     return new Response(JSON.stringify({
       error: "Invalid Prompt",
-      remainingCalls: rateLimit - callCount
+      remainingCalls
     }), {
       status: 400,
       statusText: "Bad Request - Invalid Prompt",
@@ -52,7 +42,11 @@ export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai:
         role: "user",
         content: decodeURIComponent(url.searchParams.get("p") as string)
       }
-    ]
+    ],
+    "response_format": {
+      type: "json_schema",
+      "json_schema": schema
+    }
   });
 
   try {
@@ -63,7 +57,7 @@ export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai:
     if (!filters.filters) {
       return new Response(JSON.stringify({
         error: "AI Generated Invalid Response",
-        remainingCalls: rateLimit - callCount
+        remainingCalls
       }), {
         status: 500,
         statusText: "Internal Server Error - AI Generated Invalid Response",
@@ -74,7 +68,7 @@ export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai:
     }
     delete filters.mode;
     return new Response(JSON.stringify({
-      remainingCalls: rateLimit - callCount,
+      remainingCalls,
       filters: filters
     }), {
       status: 200,
@@ -85,7 +79,7 @@ export async function performAi(url: URL, ip: string, ctx: ExecutionContext, ai:
   } catch (e) {
     return new Response(JSON.stringify({
       error: "AI Generated Invalid Response",
-      remainingCalls: rateLimit - callCount
+      remainingCalls
     }), {
       status: 500,
       statusText: "Internal Server Error - AI Generated Invalid Response",

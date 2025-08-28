@@ -9,7 +9,7 @@ import React from "react";
 function CopyButton(props: {text: string, children: ReactNode}) {
   const [copied, setCopied] = useState(false);
   return <Tooltip title="Copied!" open={copied}>
-    <Button startIcon={<CopyIcon/>} onClick={() => {
+    <Button startIcon={<CopyIcon/>} color="secondary" onClick={() => {
       navigator.clipboard.writeText(props.text);
       setCopied(true);
       setTimeout(() => {
@@ -105,7 +105,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
               <FormLabel component="legend">AI Filter Generator</FormLabel>
               <FormGroup>
                 <Stack direction="row">
-                  <TextField fullWidth label="Prompt" variant="filled" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} slotProps={{
+                  <TextField color="secondary" fullWidth label="Prompt" variant="filled" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} slotProps={{
                     input: {
                       readOnly: aiMessage === "loading"
                     }
@@ -146,7 +146,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
               <FormLabel component="legend">Filters</FormLabel>
               <FormGroup>
                 <Stack direction="row">
-                  <TextField fullWidth select slotProps={{
+                  <TextField color="secondary" fullWidth select slotProps={{
                     select: {
                       native: true,
                     },
@@ -182,7 +182,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
           </TableContainer>
           <Container sx={{marginBlock: 3}}>
             <FormControl component="fieldset" variant="standard" fullWidth>
-              <FormLabel component="legend">Other Options</FormLabel>
+              <FormLabel component="legend" color="secondary">Other Options</FormLabel>
               <FormGroup>
                 {props.calendar.hasAlarms ? 
                   (<FormControlLabel
@@ -192,7 +192,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
                     label="Remove Event Reminders" />)
                 : null}
                 <EnableableInput<"transparent" | "opaque" | null> default={"transparent"} value={makeTransparent} setValue={setMakeTransparent} label="Modify Event Transparency">
-                  <TextField select slotProps={{
+                  <TextField color="secondary" select slotProps={{
                     select: {
                       native: true,
                     },
@@ -212,7 +212,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
                   }} />
                 </EnableableInput>
                 <EnableableInput<string | null> value={renameCalendar} setValue={setRenameCalendar} default="" label="Rename Calendar">
-                  <TextField type="text" label="Name" variant="filled" value={renameCalendar} disabled={renameCalendar === null} onChange={e => {
+                  <TextField color="secondary" type="text" label="Name" variant="filled" value={renameCalendar} disabled={renameCalendar === null} onChange={e => {
                     setRenameCalendar(e.target.value);
                   }} />
                 </EnableableInput>
@@ -223,12 +223,12 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
             <FormControl component="fieldset" variant="standard" fullWidth>
               <FormLabel component="legend">Your Filtered Calendar</FormLabel>
               <FormGroup>
-                <TextField fullWidth type="text" slotProps={{input: {readOnly: true}}} value={"https://" + calendarUrl} />
+                <TextField color="secondary" fullWidth type="text" slotProps={{input: {readOnly: true}}} value={"https://" + calendarUrl} />
                 <ButtonGroup sx={{paddingBlockStart: 1}}>
                   <CopyButton text={"https://" + calendarUrl}>
                     Copy Address
                   </CopyButton>
-                  <Button endIcon={<LaunchIcon/>} href={"webcal://" + calendarUrl} target="_blamk">
+                  <Button endIcon={<LaunchIcon/>} color="secondary" href={"webcal://" + calendarUrl} target="_blamk" sx={{color: "secondary"}}>
                     Open in Default Calendar App
                   </Button>
                 </ButtonGroup>

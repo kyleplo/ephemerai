@@ -4,7 +4,7 @@ import React from "react";
 export function PrivacyPolicy(props: {productName: string, email: string}) {
   return <>
     <div>
-      <Typography><strong>Last Updated:</strong> March 23, 2025</Typography>
+      <Typography><strong>Last Updated:</strong> August 15, 2025</Typography>
     </div>
     <div>
       <Typography>This Privacy Policy describes how {props.productName} ("we," "us," or "our") collects, uses, and shares personal information when you use Our Website (referred to as the "Website" or "Service").</Typography>
@@ -84,12 +84,12 @@ export function PrivacyPolicy(props: {productName: string, email: string}) {
       <Typography component="h3" variant="h5">6. International Data Transfers</Typography>
       <Typography>We may transfer, store, and process your personal information in countries other than your own. Your personal information may be transferred to and maintained on computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those in your jurisdiction.</Typography>
 
-      <Typography>If you are located outside the United States and choose to provide information to us, please note that we transfer the data to the United States and process it there. Your submission of such information represents your agreement to that transfer.</Typography>
+      <Typography>If you are located outside the United States and choose to provide information to us, please note that we may transfer the data to the United States and process it there. Your submission of such information represents your agreement to that transfer.</Typography>
       <Typography>When we transfer personal information from the European Economic Area, United Kingdom, or Switzerland to countries that have not been deemed to provide an adequate level of protection, we use specific mechanisms (such as standard contractual clauses) approved by the European Commission or other relevant authorities to ensure appropriate safeguards for your data.</Typography></div>
 
     <div>
       <Typography component="h3" variant="h5">7. Children's Privacy</Typography>
-      <Typography>Our Service is not directed to children under the age of 13 in the United States, or the equivalent age in your jurisdiction. We do not knowingly collect personal information from children under these ages. If you are a parent or guardian and believe we have collected information from your child, please contact us so we can delete the information.</Typography>
+      <Typography>Our Service is not directed to children under the age of 13 in the United States, or the equivalent age in your jurisdiction. We do not knowingly collect personal information from children under these ages. If you are a parent or guardian and believe we have collected information from your child, please have your child cease using our Service and contact us so we can delete the information.</Typography>
     </div>
 
     <div>
@@ -100,7 +100,7 @@ export function PrivacyPolicy(props: {productName: string, email: string}) {
     </div>
     <div>
       <Typography component="h3" variant="h5">9. Contact Us</Typography>
-      <Typography>If you have any questions about this Privacy Policy or our privacy practices, please contact us at <Link href={"mailto:" + props.email}>{props.email}</Link></Typography>
+      <Typography>If you have any questions about this Privacy Policy or our privacy practices, please contact us at <Link href={"mailto:" + props.email} sx={{color: "secondary"}}>{props.email}</Link></Typography>
     </div>
   </>;
 }
@@ -108,7 +108,7 @@ export function PrivacyPolicy(props: {productName: string, email: string}) {
 export function TOS(props: {productName: string, email: string}) {
   return <>
     <div>
-      <Typography><strong>Last Updated:</strong> March 23, 2025</Typography>
+      <Typography><strong>Last Updated:</strong> August 15, 2025</Typography>
     </div>
 
     <div>
@@ -159,6 +159,6 @@ export function TOS(props: {productName: string, email: string}) {
       <Typography><strong>Changes to Terms:</strong> We reserve the right to update or modify these Terms of Service at any time without prior notice. We will provide notice of changes by posting the updated Terms of Service on the Website. Your continued use of the Website after any changes indicates your acceptance of the revised Terms of Service.</Typography><Typography><strong>Severability:</strong> If any provision of these Terms of Service is held to be invalid or unenforceable, such provision shall be struck and the remaining provisions shall be enforced to the fullest extent possible under law.</Typography><Typography><strong>Entire Agreement:</strong> These Terms of Service constitute the entire agreement between you and {props.productName} regarding the use of the Website, superseding any prior agreements between you and {props.productName}.</Typography></div>
     <div>
       <Typography component="h3" variant="h5">9. Contact Information</Typography>
-      <Typography>If you have any questions about these Terms of Service, please contact us at <Link href={"mailto:" + props.email}>{props.email}</Link></Typography></div>
+      <Typography>If you have any questions about these Terms of Service, please contact us at <Link href={"mailto:" + props.email} sx={{color: "secondary"}}>{props.email}</Link></Typography></div>
   </>;
 }

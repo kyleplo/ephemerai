@@ -2,7 +2,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import CalendarOptions from './CalendarOptions.tsx';
 import { CalendarInfo } from '../../src/parseCalendar';
 import { FetchCalendar } from './FetchCalendar';
-import { Accordion, AccordionDetails, AccordionSummary, AppBar, Container, Toolbar, Typography, Grid2 as Grid, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, createTheme, ThemeProvider, CssBaseline, List, ListItem, Chip, FormControlLabel, Switch } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, AppBar, Container, Toolbar, Typography, Grid2 as Grid, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, createTheme, ThemeProvider, CssBaseline, List, ListItem, Chip, FormControlLabel, Switch, TextField } from '@mui/material';
 import { InfoOutlined as InfoIcon, MoreVert as MoreVertIcon, ExpandMore as ExpandMoreIcon, Place as PlaceIcon, AutoAwesome as AIIcon, Person as PersonIcon, LowPriority as PriorityIcon, Opacity as OpacityIcon, NotificationsOff as NotificationsOffIcon } from '@mui/icons-material';
 import { PrivacyPolicy, TOS } from './TOSPrivacyPolicy';
 import React from 'react';
@@ -11,65 +11,90 @@ const productName = "EphemerAI";
 const contactEmail = "ephermerai@kyleplo.com";
 
 const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#4f01e7",
+      light: "#4f01e7"
+    },
+    secondary: {
+      main: "#4f01e7"
+    }
+  },
   colorSchemes: {
-    dark: true,
+    dark: {
+      palette: {
+        primary: {
+          main: "#4f01e7",
+          light: "#b28aff"
+        },
+        secondary: {
+          main: "#b28aff"
+        }
+      }
+    },
   }
 });
 
 function Demo () {
-  const [interactedWithDemo, setInteractedWithDemo] = useState(false);
-  const [demoToggle, setDemoToggle] = useState(false);
+  const [currentDemo, setCurrentDemo] = useState(0);
+  const [typingAmount, setTypingAmount] = useState(0);
+
+  const demos = [
+    {text: "Filter out optional and canceled events", events: [true, false, true, false, true], keywords: ["Description includes \"optional\"", "Description includes \"canceled\""], type: "Discard Event If Any Filter Matches"},
+    {text: "Only show events related to lunch", events: [false, false, true, true, false], keywords: ["Description includes \"lunch\""], type: "Keep Event If Any Filter Matches"},
+    {text: "Hide all of my team meetings", events: [true, true, true, true, false], keywords: ["Description includes \"team\"", "Description includes \"meeting\""], type: "Discard Event If All Filters Matches"},
+    {text: "Show meetings that do not mention lunch", events: [true, false, false, false, true], keywords: ["Description includes \"meeting\"", "Description does not include \"lunch\""], type: "Keep Event If All Filters Match"},
+    {text: "Don't show any events for the whole team", events: [true, true, false, true, false], keywords: ["Description includes \"team\""], type: "Discard Event If Any Filter Matches"}
+  ];
 
   useEffect(() => {
-    if (interactedWithDemo) {
-      return;
-    }
-
     const interval = setInterval(() => {
-      setDemoToggle(toggle => !toggle);
-    }, 3000);
+      if (typingAmount >= demos[currentDemo].text.length * 4) {
+        setTypingAmount(0);
+        setCurrentDemo((currentDemo + 1) % 5);
+      } else {
+        setTypingAmount(typingAmount + 1);
+      }
+    }, 50);
     return () => {
       clearInterval(interval);
     }
-  }, [interactedWithDemo])
+  })
 
   const now = new Date();
   const demoDate = (now.getDay() === 0 || now.getDay() == 6 ? new Date(now.getTime() + 172800000) : now).toLocaleDateString(undefined, {dateStyle: "full"});
+  const hideResults = typingAmount < demos[currentDemo].text.length + 10;
 
   return <div aria-hidden="true">
     <Paper sx={{padding: 3, margin: 3}}>
-      <Chip label="Discard Event If Any Filter Matches" />
-      <Stack direction="row" spacing={1} sx={{marginTop: 1}}>
-        <Chip label='Description includes "canceled"'/>
-        <Chip label='Description includes "optional"' sx={{overflow: "hidden"}} />
+      <TextField color="secondary" disabled fullWidth type="text" slotProps={{input: {readOnly: true}}} value={
+        (typingAmount < demos[currentDemo].text.length ? demos[currentDemo].text.slice(0, typingAmount) : 
+          (typingAmount > demos[currentDemo].text.length * 3 ? demos[currentDemo].text.slice(0, (-typingAmount + demos[currentDemo].text.length * 4)) : demos[currentDemo].text))
+      } />
+      <Chip label={demos[currentDemo].type} sx={{visibility: hideResults ? "hidden" : "visible", marginTop: 1}} />
+      <Stack direction="row" spacing={1} sx={{marginTop: 1, visibility: hideResults ? "hidden" : "visible"}}>
+        {
+          demos[currentDemo].keywords.map(keyword => <Chip label={keyword} sx={{overflow: "hidden"}}/>)
+        }
       </Stack>
-      <FormControlLabel
-        control={<Switch
-          checked={demoToggle}
-          onChange={() => {
-            setInteractedWithDemo(true);
-            setDemoToggle(!demoToggle)
-          }}/>}
-        label="Enable Filter" />
     </Paper>
     <Paper sx={{padding: 3, margin: 3}}>
       <Stack direction="row" spacing={1}>
         <Typography variant="h6" component="p">{demoDate}</Typography>
-        <Chip label={(demoToggle ? 3 : 5) + " events"} color={demoToggle ? "success" : "error"} />
       </Stack>
       <List dense>
         <ListItem>
-          <Chip label="9:30 AM - Important Meeting with Joanne" />
+          <Chip label="9:30 AM - Important Meeting with Joanne" color={demos[currentDemo].events[0] || hideResults ? "default" : "error"} sx={{textDecoration: demos[currentDemo].events[0] || hideResults ? "initial" : "line-through"}} />
         </ListItem>
         <ListItem>
-          <Chip label="11:15 AM - Optional Software Training" color={demoToggle ? "error" : "default"} sx={{textDecoration: demoToggle ? "line-through" : "initial"}} />
+          <Chip label="11:15 AM - Optional Software Training" color={demos[currentDemo].events[1] || hideResults ? "default" : "error"} sx={{textDecoration: demos[currentDemo].events[1] || hideResults ? "initial" : "line-through"}} />
         </ListItem>
         <ListItem>
-          <Chip label="12:20 PM - Team Lunch" />
-          <Chip label="12:20 PM - [CANCELED] Lunch with Frank" color={demoToggle ? "error" : "default"} sx={{marginLeft: 1, overflow: "hidden", textDecoration: demoToggle ? "line-through" : "initial"}} />
+          <Chip label="12:20 PM - Team Lunch" color={demos[currentDemo].events[2] || hideResults ? "default" : "error"} sx={{textDecoration: demos[currentDemo].events[2] || hideResults ? "initial" : "line-through"}} />
+          <Chip label="12:20 PM - [CANCELED] Lunch Meeting with Frank" color={demos[currentDemo].events[3] || hideResults ? "default" : "error"} sx={{textDecoration: demos[currentDemo].events[3] || hideResults ? "initial" : "line-through", marginLeft: 1, overflow: "hidden"}} />
         </ListItem>
         <ListItem>
-          <Chip label="3:45 PM - Check-in with Management" />
+          <Chip label="3:45 PM - Team Check-in Meeting with Management" color={demos[currentDemo].events[4] || hideResults ? "default" : "error"} sx={{textDecoration: demos[currentDemo].events[4] || hideResults ? "initial" : "line-through"}} />
         </ListItem>
       </List>
     </Paper>
@@ -96,6 +121,7 @@ function App() {
       <CssBaseline/>
       <AppBar>
         <Toolbar>
+          <img src="/favicon/favicon.svg" width="64" alt="EphemerAI Logo" />
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             {productName}
           </Typography>
@@ -106,10 +132,10 @@ function App() {
           <Grid size={1} sx={{paddingBlock: 8, paddingInline: 5}}>
             <Typography variant="h3" component="h1">Make Your Calendar as Smart as You</Typography>
             <Typography variant="body1">
-              Clean up and tweak your calendar calendar subscriptions with AI-assisted filters. Just paste in a calendar subscription address and start filtering.
+              Clean up and tweak your calendar subscriptions with AI-assisted filters. Just paste in a calendar subscription address and start filtering. Compatible with most calendar software.
             </Typography>
             <br/>
-            <FetchCalendar setCalendar={setCalendar} showTos={() => setShowTos(true)} showPrivacy={() => setShowPrivacy(true)} />
+            <FetchCalendar setCalendar={setCalendar} sample showTos={() => setShowTos(true)} showPrivacy={() => setShowPrivacy(true)} />
           </Grid>
           <Grid size={1} sx={{padding: {xs: 2, md: 1}}}>
             <Demo/>
@@ -240,9 +266,6 @@ function App() {
         <Typography variant="h4" component="h2" sx={{textAlign: "center", padding: 1}}>Ready to Try It?</Typography>
         <FetchCalendar setCalendar={setCalendar} showTos={() => setShowTos(true)} showPrivacy={() => setShowPrivacy(true)} />
       </Container>
-      <Container component="footer" maxWidth="lg">
-
-      </Container>
       <CalendarOptions calendar={calendar} open={!!calendar} close={() => setCalendar(undefined)}></CalendarOptions>
       <Dialog open={showTos} onClose={() => setShowTos(false)}>
         <DialogTitle component="h2">Terms of Service</DialogTitle>
@@ -250,7 +273,7 @@ function App() {
           <TOS productName={productName} email={contactEmail} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowTos(false)}>
+          <Button onClick={() => setShowTos(false)} sx={{color: "primary.light"}}>
             Got It
           </Button>
         </DialogActions>
@@ -261,7 +284,7 @@ function App() {
           <PrivacyPolicy productName={productName} email={contactEmail} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowPrivacy(false)}>
+          <Button onClick={() => setShowPrivacy(false)} sx={{color: "primary.light"}}>
             Got It
           </Button>
         </DialogActions>

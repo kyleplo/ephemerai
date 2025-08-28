@@ -5,7 +5,7 @@ import { Delete as DeleteIcon } from "@mui/icons-material";
 import React from "react";
 
 export function PrioritySelect(props: {onChange: (event: React.ChangeEvent<HTMLInputElement>) => void, value: string | number | undefined, label: string, sx?: SxProps<Theme>, fullWidth?: boolean, disabled?: boolean}) {
-  return <TextField select slotProps={{
+  return <TextField color="primary.light" select slotProps={{
     select: {
       native: true,
     },
@@ -27,7 +27,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
   const filter = props.filter;
   return <TableRow>
     <TableCell sx={{padding: 1}}>
-      <TextField select fullWidth slotProps={{
+      <TextField color="primary.light" select fullWidth slotProps={{
           select: {
             native: true,
           },
@@ -53,7 +53,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
       </TextField>
     </TableCell>
     <TableCell sx={{padding: 1}}>
-      <TextField select fullWidth slotProps={{
+      <TextField color="primary.light" select fullWidth slotProps={{
           select: {
             native: true,
           },
@@ -90,7 +90,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
           }));
         }}/>
       ) : filter.type === "uid" ? (
-        <TextField select fullWidth slotProps={{
+        <TextField color="primary.light" select fullWidth slotProps={{
           select: {
             native: true,
           },
@@ -112,7 +112,7 @@ export function Filter(props: { filter: FilterOptions, filters: FilterOptions[],
           })}
         </TextField>
       ) : (
-        <Autocomplete freeSolo fullWidth options={Array.from(filter.type === "location" ? props.calendar.locations : filter.type === "email" ? props.calendar.emails : filter.type === "organizer" ? props.calendar.emails : [])}
+        <Autocomplete color="primary.light" freeSolo fullWidth options={Array.from(filter.type === "location" ? props.calendar.locations : filter.type === "email" ? props.calendar.emails : filter.type === "organizer" ? props.calendar.emails : [])}
           renderInput={(params) => <TextField {...params} label="Value" variant="filled" />
           } inputValue={filter.value as string} onInputChange={(_e, value) => {
             props.setFilters(props.filters.map(oldFilter => {
