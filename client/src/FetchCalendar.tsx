@@ -28,7 +28,7 @@ export function FetchCalendar(props: { setCalendar: (calendar: CalendarInfo) => 
           const parsedCalendarResponse = await fetch("/parse?c=" + encodeURIComponent(calendarUrl));
           const parsedCalendarText = await parsedCalendarResponse.text();
           const parsedCalendarData = JSON.parse(parsedCalendarText, (key: string, value: any) => {
-            if (key === "locations" || key === "organizer" || key === "emails") {
+            if (key === "locations" || key === "organizers" || key === "emails") {
               return new Set(value);
             }
             if (key === "events") {

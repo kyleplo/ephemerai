@@ -57,7 +57,12 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
     setFilterMode("any");
     setAiPrompt("");
     setAiMessage("");
-    setFilters([]);
+    setFilters([{
+      id: Math.random(),
+      type: "text",
+      invert: false,
+      value: ""
+    }]);
   }, [props.calendar])
 
   if (!props.calendar) {
@@ -82,7 +87,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
   + (makeTransparent === "transparent" ? "&h" : "")
   + (makeTransparent === "opaque" ? "&h=o" : "") 
   + (renameCalendar ? "&r=" + encodeURIComponent(renameCalendar) : "") 
-  + (modifyPriority ? "&m=" + modifyPriority : "")
+  + (modifyPriority !== null ? "&m=" + modifyPriority : "")
   + (filters.length ? "&" : "")
   + filters.map(filter => filterToQueryParam(filter)).join("&");
 
@@ -228,7 +233,7 @@ function CalendarOptions(props: {calendar?: CalendarInfo, open: boolean, close: 
                   <CopyButton text={"https://" + calendarUrl}>
                     Copy Address
                   </CopyButton>
-                  <Button endIcon={<LaunchIcon/>} color="secondary" href={"webcal://" + calendarUrl} target="_blamk" sx={{color: "secondary"}}>
+                  <Button endIcon={<LaunchIcon/>} color="secondary" href={"webcal://" + calendarUrl} target="_blank" sx={{color: "secondary"}}>
                     Open in Default Calendar App
                   </Button>
                 </ButtonGroup>
